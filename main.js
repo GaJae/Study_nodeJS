@@ -5,12 +5,10 @@ const { strictEqual } = require('assert');
 var app = http.createServer(function (request, response) {
   var _url = request.url;
   var queryData = url.parse(_url, true).query;
-  //console.log(queryData.id);
-
   var pathname = url.parse(_url, true).pathname;
   var qs = require('querystring');
 
-  function templateHTML(title, list, body) {
+  function templateHTML(title, list, body, control) {
     return `
           <!doctype html>
           <html>
@@ -21,8 +19,8 @@ var app = http.createServer(function (request, response) {
           <body>
             <h1><a href="/">WEB</a></h1>
             ${list}
-            <a href="/create">ceate</a>
-           ${body}
+            ${control}
+            ${body}
           </body>
           </html>
           `;
@@ -39,24 +37,6 @@ var app = http.createServer(function (request, response) {
     return list;
   }
 
-  //if(request.url == '/'){
-  /* if(_url == '/'){
-    //_url = '/index.html';
-    title = 'Welcome';
-  }
-//if(request.url == '/favicon.ico'){
-  if(_url == '/favicon.ico'){
-    // response.writeHead(404);
-    // response.end();
-    // return;
-    return response.writeHead(404);
-} */
-  //response.writeHead(200);
-  //console.log(__dirname + _url);
-  //response.end('egoing' + url);
-  //response.end(fs.readFileSync(__dirname + _url));
-
-  //console.log(url.parse(_url, true).pathname);
 
   if (pathname === '/') {
     if (queryData.id === undefined) {
@@ -83,7 +63,10 @@ var app = http.createServer(function (request, response) {
 
       list += '</ol>'; */
 
-        var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`);
+        var template = templateHTML(title, list,
+          `<h2>${title}</h2>${description}`,
+          `<a href="/create">ceate</a> `
+        );
         response.writeHead(200);
         response.end(template);
       });
@@ -104,7 +87,10 @@ var app = http.createServer(function (request, response) {
 
         fs.readFile(`data/${queryData.id}`, 'utf-8', function (err, description) {
           var title = queryData.id;
-          var template = templateHTML(title, list, `<h2>${title}</h2><p>${description}</p>`);
+          var template = templateHTML(title, list,
+            `<h2>${title}</h2>${description}`,
+            `<a href="/create">ceate</a> <a href="/update?id=${title}">update</a>`
+          );
           response.writeHead(200);
           response.end(template);
         });
@@ -127,7 +113,7 @@ var app = http.createServer(function (request, response) {
               <input type="submit">
             </p>
           </form>
-        `
+        `, ''
       );
       response.writeHead(200);
       response.end(template);
@@ -142,11 +128,15 @@ var app = http.createServer(function (request, response) {
       var post = qs.parse(body);
       var title = post.title;
       var description = post.description;
-      console.log(post);
+      //console.log(post);
+      fs.writeFile(`data/${title}`, description, 'utf8',
+        function (err) {
+          response.writeHead(302, { Location: `/?id=${title}` });
+          response.end();
+        });
     });
 
-    response.writeHead(200);
-    response.end('success');
+
   }
   else {
     response.writeHead(404);
