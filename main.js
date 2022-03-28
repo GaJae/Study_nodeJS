@@ -8,6 +8,7 @@ var app = http.createServer(function (request, response) {
   //console.log(queryData.id);
 
   var pathname = url.parse(_url, true).pathname;
+  var qs = require('querystring');
 
   function templateHTML(title, list, body) {
     return `
@@ -55,7 +56,7 @@ var app = http.createServer(function (request, response) {
   //response.end('egoing' + url);
   //response.end(fs.readFileSync(__dirname + _url));
 
-  console.log(url.parse(_url, true).pathname);
+  //console.log(url.parse(_url, true).pathname);
 
   if (pathname === '/') {
     if (queryData.id === undefined) {
@@ -63,7 +64,7 @@ var app = http.createServer(function (request, response) {
       //fs.readFile(`data/${queryData.id}`,'utf-8',function(err,description){
 
       fs.readdir('./data', function (error, filelist) {
-        console.log(filelist);
+        //console.log(filelist);
         var title = 'Welcome';
         var description = 'Hello, Node.js';
         /*
@@ -90,7 +91,7 @@ var app = http.createServer(function (request, response) {
       //});
     } else {
       fs.readdir('./data', function (error, filelist) {
-        console.log(filelist);
+        //console.log(filelist);
 
         /*
           var list =`      <ol>
@@ -111,16 +112,13 @@ var app = http.createServer(function (request, response) {
     }
 
   } else if (pathname === '/create') {
-    //fs.readFile(`data/${queryData.id}`,'utf-8',function(err,description){
-
     fs.readdir('./data', function (error, filelist) {
-      console.log(filelist);
+      //console.log(filelist);
       var title = 'WEB - create';
-      //var description = 'Hello, Node.js';
       var list = templateList(filelist);
       var template = templateHTML(title, list,
         `
-         <form action="http://localhost:3000/process_create" method="post">
+         <form action="http://localhost:3000/create_process" method="post">
             <p><input type="text" name="title" placeholder="title"></p>
             <p>
               <textarea name="description" placeholder="description"></textarea>
@@ -135,7 +133,22 @@ var app = http.createServer(function (request, response) {
       response.end(template);
     });
 
-  } else {
+  } else if (pathname === '/create_process') {
+    var body = '';
+    request.on('data', function (data) {//데이터 요청이 발생햇을때마다 실행됨
+      body += data;
+    });
+    request.on('end', function () {//정보수신이 끝낫을때
+      var post = qs.parse(body);
+      var title = post.title;
+      var description = post.description;
+      console.log(post);
+    });
+
+    response.writeHead(200);
+    response.end('success');
+  }
+  else {
     response.writeHead(404);
     response.end('Not found');
   }
