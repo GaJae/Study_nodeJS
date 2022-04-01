@@ -82,7 +82,7 @@ var app = http.createServer(function (request, response) {
             `<h2>${title}</h2>${description}`,
             `<a href="/create">ceate</a> 
             <a href="/update?id=${title}">update</a>
-            <form action="delete_process" mothod="post" onsubmit="do you want delete?">
+            <form action="delete_process" method="post">
               <input type="hidden" name="id" value="${title}">
               <input type="submit" value="delete">
             </form>
@@ -177,6 +177,23 @@ var app = http.createServer(function (request, response) {
             response.writeHead(302, { Location: `/?id=${title}` });
             response.end();
           });
+      });
+
+
+    });
+  }
+  else if (pathname === '/delete_process') {
+    var body = '';
+    request.on('data', function (data) {//데이터 요청이 발생햇을때마다 실행됨
+      body += data;
+    });
+    request.on('end', function () {//정보수신이 끝낫을때
+      var post = qs.parse(body);
+      var id = post.id;
+
+      fs.unlink(`data/${id}`, function (error) {
+        response.writeHead(302, { Location: `/` });
+        response.end();
       });
 
 
