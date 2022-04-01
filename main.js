@@ -80,7 +80,13 @@ var app = http.createServer(function (request, response) {
           var title = queryData.id;
           var template = templateHTML(title, list,
             `<h2>${title}</h2>${description}`,
-            `<a href="/create">ceate</a> <a href="/update?id=${title}">update</a>`
+            `<a href="/create">ceate</a> 
+            <a href="/update?id=${title}">update</a>
+            <form action="delete_process" mothod="post" onsubmit="do you want delete?">
+              <input type="hidden" name="id" value="${title}">
+              <input type="submit" value="delete">
+            </form>
+            `
           );
           response.writeHead(200);
           response.end(template);
@@ -173,10 +179,7 @@ var app = http.createServer(function (request, response) {
           });
       });
 
-      //console.log(post);
-      /*
-      
-      */
+
     });
   }
   else {
